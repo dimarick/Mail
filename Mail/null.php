@@ -77,7 +77,7 @@ class Mail_null extends Mail {
      *               containing a descriptive error message on
      *               failure.
      */
-    public function send($recipients, $headers, $body)
+    public function send($recipients, array $headers, $body)
     {
         return true;
     }

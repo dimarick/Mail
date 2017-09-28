@@ -1,6 +1,6 @@
-****
 Mail
-****
+====
+
 Class that provides multiple interfaces for sending emails.
 
 PEAR's Mail package defines an interface for implementing mailers under the
@@ -9,36 +9,24 @@ It also provides supporting functions useful to multiple mailer backends.
 
 Currently supported backends include:
 
-- PHP's native ``mail()`` function
+- PHP's native `mail()` function
 - sendmail
 - SMTP
 
-This package also provides a `RFC 822`__ email address list validation utility class.
+This package also provides a `RFC 822` email address list validation utility class.
 
-Use Mail in combination with `Mail_Mime`__ to send HTML emails or emails with
-attachments - have a look at the example__.
+Use Mail in combination with `Mail_Mime` to send HTML emails or emails with
+attachments - have a look at the example.
 
-__ https://tools.ietf.org/html/rfc822
-__ http://pear.php.net/package/Mail_Mime
-__ http://pear.php.net/manual/en/package.mail.mail-mime.example.php
+https://tools.ietf.org/html/rfc822
+http://pear.php.net/package/Mail_Mime
+http://pear.php.net/manual/en/package.mail.mail-mime.example.php
 
-============
 Installation
 ============
 
-PEAR
-====
-::
+`$ composer require pear/mail`
 
-    $ pear install mail
-
-Composer
-========
-::
-
-    $ composer require pear/mail
-
-=====
 Links
 =====
 Homepage

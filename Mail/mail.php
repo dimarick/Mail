@@ -56,7 +56,7 @@ class Mail_mail extends Mail {
      * Any arguments to pass to the mail() function.
      * @var string
      */
-    var $_params = '';
+    public $_params = '';
 
     /**
      * Constructor.
@@ -112,18 +112,11 @@ class Mail_mail extends Mail {
      *               containing a descriptive error message on
      *               failure.
      */
-    public function send($recipients, $headers, $body)
+    public function send($recipients, array $headers, $body)
     {
-        if (!is_array($headers)) {
-            return PEAR::raiseError('$headers must be an array');
-        }
+        $this->_sanitizeHeaders($headers);
 
-        $result = $this->_sanitizeHeaders($headers);
-        if (is_a($result, 'PEAR_Error')) {
-            return $result;
-        }
-
-        // If we're passed an array of recipients, implode it.
+         // If we're passed an array of recipients, implode it.
         if (is_array($recipients)) {
             $recipients = implode(', ', $recipients);
         }
@@ -141,11 +134,7 @@ class Mail_mail extends Mail {
         unset($headers['To']);
 
         // Flatten the headers out.
-        $headerElements = $this->prepareHeaders($headers);
-        if (is_a($headerElements, 'PEAR_Error')) {
-            return $headerElements;
-        }
-        list(, $text_headers) = $headerElements;
+        list(, $text_headers) = $this->prepareHeaders($headers);
 
         // We only use mail()'s optional fifth parameter if the additional
         // parameters have been provided and we're not running in safe mode.
@@ -159,7 +148,7 @@ class Mail_mail extends Mail {
         // If the mail() function returned failure, we need to create a
         // PEAR_Error object and return it instead of the boolean result.
         if ($result === false) {
-            $result = PEAR::raiseError('mail() returned failure');
+            throw new \RuntimeException('mail() returned failure');
         }
 
         return $result;

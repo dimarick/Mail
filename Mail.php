@@ -45,8 +45,6 @@
  * @link        http://pear.php.net/package/Mail/
  */
 
-require_once 'PEAR.php';
-
 /**
  * PEAR's Mail:: interface. Defines the interface for implementing
  * mailers under the PEAR hierarchy, and provides supporting functions
@@ -70,19 +68,14 @@ class Mail
      * @param string $driver The kind of Mail:: object to instantiate.
      * @param array  $params The parameters to pass to the Mail:: object.
      *
-     * @return object Mail a instance of the driver class or if fails a PEAR Error
+     * @return Mail a instance of the driver class or if fails a PEAR Error
      */
     public static function factory($driver, $params = array())
     {
         $driver = strtolower($driver);
-        @include_once 'Mail/' . $driver . '.php';
         $class = 'Mail_' . $driver;
-        if (class_exists($class)) {
-            $mailer = new $class($params);
-            return $mailer;
-        } else {
-            return PEAR::raiseError('Unable to find class for driver ' . $driver);
-        }
+
+        return new $class($params);
     }
 
     /**
@@ -111,16 +104,9 @@ class Mail
      *
      * @deprecated use Mail_mail::send instead
      */
-    public function send($recipients, $headers, $body)
+    public function send($recipients, array $headers, $body)
     {
-        if (!is_array($headers)) {
-            return PEAR::raiseError('$headers must be an array');
-        }
-
-        $result = $this->_sanitizeHeaders($headers);
-        if (is_a($result, 'PEAR_Error')) {
-            return $result;
-        }
+        $this->_sanitizeHeaders($headers);
 
         // if we're passed an array of recipients, implode it.
         if (is_array($recipients)) {
@@ -179,13 +165,8 @@ class Mail
 
         foreach ($headers as $key => $value) {
             if (strcasecmp($key, 'From') === 0) {
-                include_once 'Mail/RFC822.php';
                 $parser = new Mail_RFC822();
                 $addresses = $parser->parseAddressList($value, 'localhost', false);
-                if (is_a($addresses, 'PEAR_Error')) {
-                    return $addresses;
-                }
-
                 $from = $addresses[0]->mailbox . '@' . $addresses[0]->host;
 
                 // Reject envelope From: addresses with spaces.
@@ -218,7 +199,7 @@ class Mail
             }
         }
 
-        return array($from, join($this->sep, $lines));
+        return array($from, implode($this->sep, $lines));
     }
 
     /**
@@ -249,11 +230,6 @@ class Mail
         $Mail_RFC822 = new Mail_RFC822();
         $addresses = $Mail_RFC822->parseAddressList($recipients, 'localhost', false);
 
-        // If parseAddressList() returned a PEAR_Error object, just return it.
-        if (is_a($addresses, 'PEAR_Error')) {
-            return $addresses;
-        }
-
         $recipients = array();
         if (is_array($addresses)) {
             foreach ($addresses as $ob) {
@@ -263,5 +239,4 @@ class Mail
 
         return $recipients;
     }
-
 }

@@ -27,18 +27,14 @@
         "./"
     ],
     "license": "BSD-2-Clause",
-    "name": "pear/mail",
+    "name": "dimarick/mail",
     "support": {
         "issues": "http://pear.php.net/bugs/search.php?cmd=display&package_name[]=Mail",
         "source": "https://github.com/pear/Mail"
     },
     "type": "library",
     "require": {
-        "php": ">=5.2.1",
-        "pear/pear-core-minimal": "~1.9"
-    },
-    "require-dev": {
-        "pear/pear": "*"
+        "php": ">=5.6"
     },
     "suggest": {
         "pear/net_smtp": "Install optionally via your project's composer.json"

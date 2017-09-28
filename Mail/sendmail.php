@@ -59,14 +59,14 @@ class Mail_sendmail extends Mail {
      * filesystem.
      * @var string
      */
-    var $sendmail_path = '/usr/sbin/sendmail';
+    public $sendmail_path = '/usr/sbin/sendmail';
 
     /**
      * Any extra command-line parameters to pass to the sendmail or
      * sendmail wrapper binary.
      * @var string
      */
-    var $sendmail_args = '-i';
+    public $sendmail_args = '-i';
 
     /**
      * Constructor.
@@ -130,28 +130,13 @@ class Mail_sendmail extends Mail {
      *               containing a descriptive error message on
      *               failure.
      */
-    public function send($recipients, $headers, $body)
+    public function send($recipients, array $headers, $body)
     {
-        if (!is_array($headers)) {
-            return PEAR::raiseError('$headers must be an array');
-        }
-
-        $result = $this->_sanitizeHeaders($headers);
-        if (is_a($result, 'PEAR_Error')) {
-            return $result;
-        }
-
+        $this->_sanitizeHeaders($headers);
         $recipients = $this->parseRecipients($recipients);
-        if (is_a($recipients, 'PEAR_Error')) {
-            return $recipients;
-        }
         $recipients = implode(' ', array_map('escapeshellarg', $recipients));
 
-        $headerElements = $this->prepareHeaders($headers);
-        if (is_a($headerElements, 'PEAR_Error')) {
-            return $headerElements;
-        }
-        list($from, $text_headers) = $headerElements;
+        list($from, $text_headers) = $this->prepareHeaders($headers);
 
         /* Since few MTAs are going to allow this header to be forged
          * unless it's in the MAIL FROM: exchange, we'll use
@@ -161,19 +146,19 @@ class Mail_sendmail extends Mail {
         }
 
         if (!isset($from)) {
-            return PEAR::raiseError('No from address given.');
+            throw new \InvalidArgumentException('No from address given.');
         } elseif (strpos($from, ' ') !== false ||
                   strpos($from, ';') !== false ||
                   strpos($from, '&') !== false ||
                   strpos($from, '`') !== false) {
-            return PEAR::raiseError('From address specified with dangerous characters.');
+            throw new \InvalidArgumentException('From address specified with dangerous characters.');
         }
 
         $from = escapeshellarg($from); // Security bug #16200
 
         $mail = @popen($this->sendmail_path . (!empty($this->sendmail_args) ? ' ' . $this->sendmail_args : '') . " -f$from -- $recipients", 'w');
         if (!$mail) {
-            return PEAR::raiseError('Failed to open sendmail [' . $this->sendmail_path . '] for execution.');
+            throw new \RuntimeException('Failed to open sendmail [' . $this->sendmail_path . '] for execution.');
         }
 
         // Write the headers following by two newlines: one to end the headers
@@ -182,18 +167,12 @@ class Mail_sendmail extends Mail {
 
         fputs($mail, $body);
         $result = pclose($mail);
-        if (version_compare(phpversion(), '4.2.3') == -1) {
-            // With older php versions, we need to shift the pclose
-            // result to get the exit code.
-            $result = $result >> 8 & 0xFF;
-        }
 
         if ($result != 0) {
-            return PEAR::raiseError('sendmail returned error code ' . $result,
+            throw new \RuntimeException('sendmail returned error code ' . $result,
                                     $result);
         }
 
         return true;
     }
-
 }

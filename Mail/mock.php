@@ -121,7 +121,7 @@ class Mail_mock extends Mail {
      *               containing a descriptive error message on
      *               failure.
      */
-    public function send($recipients, $headers, $body)
+    public function send($recipients, array $headers, $body)
     {
         if ($this->_preSendCallback) {
             call_user_func_array($this->_preSendCallback,
