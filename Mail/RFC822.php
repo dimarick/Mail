@@ -46,6 +46,8 @@
  * @link        http://pear.php.net/package/Mail/
  */
 
+use Pear\Mail\Exception\AddressValidationException;
+
 /**
  * RFC 822 Email address list validation Utility
  *
@@ -163,12 +165,13 @@ class Mail_RFC822 {
      * Starts the whole process. The address must either be set here
      * or when creating the object. One or the other.
      *
-     * @param string  $address         The address(es) to validate.
-     * @param string  $default_domain  Default domain/host etc.
-     * @param boolean $nest_groups     Whether to return the structure with groups nested for easier viewing.
-     * @param boolean $validate        Whether to validate atoms. Turn this off if you need to run addresses through before encoding the personal names, for instance.
+     * @param string $address The address(es) to validate.
+     * @param string $default_domain Default domain/host etc.
+     * @param boolean $nest_groups Whether to return the structure with groups nested for easier viewing.
+     * @param boolean $validate Whether to validate atoms. Turn this off if you need to run addresses through before encoding the personal names, for instance.
      *
      * @return array A structured array of addresses.
+     * @throws AddressValidationException
      */
     public function parseAddressList($address = null, $default_domain = null, $nest_groups = null, $validate = null, $limit = null)
     {
@@ -192,10 +195,12 @@ class Mail_RFC822 {
         $this->address = preg_replace('/\r?\n/', "\r\n", $this->address);
         $this->address = preg_replace('/\r\n(\t| )+/', ' ', $this->address);
 
-        while ($this->address = $this->_splitAddresses($this->address));
+        while ($this->address = $this->_splitAddresses($this->address)) {
+            continue;
+        };
 
         if ($this->address === false || isset($this->error)) {
-            throw new \InvalidArgumentException($this->error);
+            throw new AddressValidationException($this->error);
         }
 
         // Validate each address individually.  If we encounter an invalid
@@ -204,7 +209,7 @@ class Mail_RFC822 {
             $valid = $this->_validateAddress($address);
 
             if ($valid === false || isset($this->error)) {
-                throw new \InvalidArgumentException($this->error);
+                throw new AddressValidationException($this->error);
             }
 
             if (!$this->nestGroups) {

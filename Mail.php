@@ -216,8 +216,6 @@ class Mail
      */
     protected function parseRecipients($recipients)
     {
-        include_once 'Mail/RFC822.php';
-
         // if we're passed an array, assume addresses are valid and
         // implode them before parsing.
         if (is_array($recipients)) {

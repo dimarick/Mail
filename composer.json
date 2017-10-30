@@ -19,6 +19,9 @@
     "autoload": {
         "psr-0": {
             "Mail": "./"
+        },
+        "psr-4": {
+            "Pear\\": "./"
         }
     },
     "description": "Class that provides multiple interfaces for sending emails.",
